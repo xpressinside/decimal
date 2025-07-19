@@ -1,11 +1,11 @@
 #include "s21_decimal.h"
 
 void main() {
-    s21_decimal number = {{0x000000FF, 0x00000000, 0x00000000, 0x00000000}};
+    s21_decimal number = {{0xF0000FFF, 0x00000000, 0x00000000, 0x80000000}};
     // int res = 0;
     // s21_from_decimal_to_int(number, &res);
     // printf("%i\n", res);
-    s21_decimal number_2 = {{0x000000FF, 0x00000000, 0x00000000, 0x00000000}};
+    s21_decimal number_2 = {{0xF00000FF, 0x00000000, 0x00000000, 0x80000000}};
     // int eq = s21_is_equal(number, number_2);
     // printf("res eq = %i\n", eq);
     // char* str = s21_decimal_to_string(number);
@@ -13,19 +13,30 @@ void main() {
     // printf("%s\n", str);
     // printf("%s\n", str2);
     s21_decimal result = {{0}};
+    s21_decimal result_2 = {{0}};
 
     s21_add_by_bit(number, number_2, &result);
+    s21_sub_by_bit(number, number_2, &result_2);
     s21_print_bits_debug(number);
     s21_print_bits_debug(number_2);
-
+    printf("-----result of ADD-----\n");
     s21_print_bits_debug(result);
+    printf("-----result of SUB-----\n");
+    s21_print_bits_debug(result_2);
+
     char* str = s21_decimal_to_string(number);
     char* str2 = s21_decimal_to_string(number_2);
     char* str3 = s21_decimal_to_string(result);
+    char* str4 = s21_decimal_to_string(result_2);
+
 
     printf("%s\n", str);
     printf("%s\n", str2);
+    printf("-----result of ADD-----\n");
     printf("%s\n", str3);
+    printf("-----result of SUB-----\n");
+    printf("%s\n", str4);
+
 
 
     // s21_sub(number, number_2, &result);

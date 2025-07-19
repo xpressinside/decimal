@@ -1,6 +1,6 @@
 #include "s21_decimal.h"
 
-int s21_add_by_bit(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
+int s21_sub_by_bit(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
     int error = 0;
     int overflow = 0;
 
@@ -14,10 +14,30 @@ int s21_add_by_bit(s21_decimal value_1, s21_decimal value_2, s21_decimal *result
     // printf("sign 1 = %i \nsign 2 = %i \n", sign_1, sign_2);
     
 
-    // 1 1 - - = -(v1 + v2) 
+    // (-v1) - (-v2) = - v1 + v2 = - (v1 - v2)
     if (sign_1 && sign_2) {
         int carry = 0;
         for (int i = 0; i < 96; i++) {
+            int diff = s21_get_bit(value_1, i) - s21_get_bit(value_2, i) - carry;
+            if (diff == -1) {
+                s21_set_bit(result, i, 1);
+                carry = 1;
+            } else if (diff == -2) {
+                s21_set_bit(result, i, 0);
+                carry = 1;
+            } else {
+                s21_set_bit(result, i, diff);
+                carry = 0;
+            }
+        }
+        if (carry) {
+            error = 1;
+        }
+        s21_set_sign(result, 1);
+    // -v1 - v2 = - (v1 + v2)
+    } else if (sign_1) {
+                int carry = 0;
+        for (int i = 0; i < 96; i++) {
             int sum = 0;
             sum = s21_get_bit(value_1, i) + s21_get_bit(value_2, i) + carry;
             if (sum == 2) {
@@ -35,49 +55,10 @@ int s21_add_by_bit(s21_decimal value_1, s21_decimal value_2, s21_decimal *result
             error = 1;
         }
         s21_set_sign(result, 1);
-    // 1 0 - + = v2 - v1 = -(v1 - v2)
-    } else if (sign_1) {
-        int carry = 0;
-        for (int i = 0; i < 96; i++) {
-            int diff = s21_get_bit(value_1, i) - s21_get_bit(value_2, i) - carry;
-            if (diff == -1) {
-                s21_set_bit(result, i, 1);
-                carry = 1;
-            } else if (diff == -2) {
-                s21_set_bit(result, i, 0);
-                carry = 1;
-            } else {
-                s21_set_bit(result, i, diff);
-                carry = 0;
-            }
-        }
-        if (carry) {
-            error = 1;
-        }
-        s21_set_sign(result, 1);
-    // 0 1 + - = v1 - v2
+    // v1 - (-v2) = v1 + v2
     } else if (sign_2) {
         int carry = 0;
         for (int i = 0; i < 96; i++) {
-            int diff = s21_get_bit(value_1, i) - s21_get_bit(value_2, i) - carry;
-            if (diff == -1) {
-                s21_set_bit(result, i, 1);
-                carry = 1;
-            } else if (diff == -2) {
-                s21_set_bit(result, i, 0);
-                carry = 1;
-            } else {
-                s21_set_bit(result, i, diff);
-                carry = 0;
-            }
-        }
-        if (carry) {
-            error = 1;
-        }
-    // 0 0 + + = v1 + v2
-    } else {
-        int carry = 0;
-        for (int i = 0; i < 96; i++) {
             int sum = 0;
             sum = s21_get_bit(value_1, i) + s21_get_bit(value_2, i) + carry;
             if (sum == 2) {
@@ -88,6 +69,25 @@ int s21_add_by_bit(s21_decimal value_1, s21_decimal value_2, s21_decimal *result
                 carry = 1;
             } else {
                 s21_set_bit(result, i, sum);
+                carry = 0;
+            }
+        }
+        if (carry) {
+            error = 1;
+        }
+    // v1 - v2
+    } else {
+        int carry = 0;
+        for (int i = 0; i < 96; i++) {
+            int diff = s21_get_bit(value_1, i) - s21_get_bit(value_2, i) - carry;
+            if (diff == -1) {
+                s21_set_bit(result, i, 1);
+                carry = 1;
+            } else if (diff == -2) {
+                s21_set_bit(result, i, 0);
+                carry = 1;
+            } else {
+                s21_set_bit(result, i, diff);
                 carry = 0;
             }
         }
